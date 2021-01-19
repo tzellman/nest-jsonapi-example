@@ -1,0 +1,60 @@
+{
+  "name": "nest-jsonapi-example",
+  "version": "0.1.0",
+  "description": "an example application that demonstrates the nest-jsonapi module",
+  "keywords": [
+    "nestjs",
+    "nest",
+    "jsonapi",
+    "json-api",
+    "sequelize",
+    "typescript"
+  ],
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Tom Zellman",
+      "email": "tzellman@gmail.com"
+    }
+  ],
+  "files": [
+    "lib/src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc-watch -p tsconfig.json",
+    "clean": "rimraf lib",
+    "prebuild": "npm run clean",
+    "purge": "npm run clean && rimraf node_modules",
+    "start": "tsc-watch -p tsconfig.json --onSuccess \"node lib/app.js\""
+  },
+  "dependencies": {
+    "@nestjs/common": "7.6.5",
+    "@nestjs/core": "7.6.5",
+    "@nestjs/platform-express": "7.6.5",
+    "@nestjs/sequelize": "0.1.1",
+    "chalk": "4.1.0",
+    "class-transformer": "0.3.2",
+    "class-validator": "0.13.1",
+    "faker": "5.1.0",
+    "nest-jsonapi": "0.1.0",
+    "sequelize": "6.3.5",
+    "sequelize-typescript": "2.0.0-beta.1",
+    "sqlite3": "5.0.1",
+    "uuid": "8.3.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "11.0.0",
+    "@commitlint/config-conventional": "11.0.0",
+    "@nestjs/testing": "7.6.5",
+    "@types/faker": "5.1.5",
+    "@types/node": "14.14.21",
+    "@types/uuid": "8.3.0",
+    "@types/validator": "13.1.3",
+    "reflect-metadata": "0.1.13",
+    "rimraf": "3.0.2",
+    "rxjs": "6.6.3",
+    "tsc-watch": "4.2.9",
+    "typescript": "4.1.3"
+  }
+}

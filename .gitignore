@@ -1,0 +1,7 @@
+/node_modules
+/lib
+/reports
+/.eslintcache
+npm-debug.log*
+/.idea
+*.iml
