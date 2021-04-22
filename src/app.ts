@@ -1,55 +1,60 @@
-import * as bodyParser from 'body-parser';
-import * as faker from 'faker';
-import * as uuid from 'uuid';
-import { NestFactory } from '@nestjs/core';
-import { Inject, Logger, MiddlewareConsumer, Module, NestModule, OnModuleInit } from '@nestjs/common';
+import * as bodyParser from "body-parser";
+import * as faker from "faker";
+import * as uuid from "uuid";
+import { NestFactory } from "@nestjs/core";
 import {
+    Inject,
+    Logger,
+    MiddlewareConsumer,
+    Module,
+    NestModule,
+    OnModuleInit,
+} from "@nestjs/common";
+import {
+    JSONAPI_MODULE_SERVICE,
     JsonapiMiddleware,
     JsonapiModule,
     JsonapiService,
-    JSONAPI_MODULE_SERVICE,
     SchemaBuilder,
-    SchemaDataBuilder
-} from 'nest-jsonapi';
-import { SequelizeModule } from '@nestjs/sequelize';
-import Photo from './schemas/photo';
-import PhotosController from './photos.controller';
-import { RESOURCE_PHOTOS } from './constants';
+} from "nest-jsonapi";
+import { SequelizeModule } from "@nestjs/sequelize";
+import Photo from "./schemas/photo";
+import PhotosController from "./photos.controller";
+import { RESOURCE_PHOTOS } from "./constants";
 
 @Module({
     imports: [
         SequelizeModule.forRootAsync({
             useFactory: () => ({
-                dialect: 'sqlite',
-                database: ':memory:',
+                dialect: "sqlite",
+                database: ":memory:",
                 synchronize: true,
                 autoLoadModels: true,
-                logging: false
-            })
+                logging: false,
+            }),
         }),
         SequelizeModule.forFeature([Photo]),
-        JsonapiModule.forRoot({ mountPoint: '/api' })
+        JsonapiModule.forRoot({ mountPoint: "/api" }),
     ],
-    controllers: [PhotosController]
+    controllers: [PhotosController],
 })
 export class AppModule implements NestModule, OnModuleInit {
-    constructor(@Inject(JSONAPI_MODULE_SERVICE) private readonly jsonapiService: JsonapiService) {}
+    constructor(
+        @Inject(JSONAPI_MODULE_SERVICE)
+        private readonly jsonapiService: JsonapiService
+    ) {
+    }
 
     public configure(consumer: MiddlewareConsumer): void {
         consumer.apply(JsonapiMiddleware).forRoutes(PhotosController);
     }
 
     public async onModuleInit(): Promise<void> {
-        this.jsonapiService.register({
-            name: RESOURCE_PHOTOS,
-            schema: new SchemaBuilder<Photo>(RESOURCE_PHOTOS)
-                .data(
-                    new SchemaDataBuilder<Photo>(RESOURCE_PHOTOS)
-                        .untransformAttributes({ deny: ['createdAt', 'updatedAt'] })
-                        .build()
-                )
-                .build()
+        let photosSchemaBuilder = new SchemaBuilder<Photo>(RESOURCE_PHOTOS);
+        photosSchemaBuilder.dataBuilder.untransformAttributes({
+            deny: ["createdAt", "updatedAt"],
         });
+        this.jsonapiService.register(photosSchemaBuilder);
 
         // seed the database with some data
         for (let i = 0, numPhotos = faker.random.number(100); i < numPhotos; ++i) {

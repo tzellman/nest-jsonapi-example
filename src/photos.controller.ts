@@ -1,10 +1,20 @@
-import { Controller, Get, Query, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { JsonapiInterceptor, JsonapiPayload } from 'nest-jsonapi';
-import Photo from './schemas/photo';
-import { RESOURCE_PHOTOS } from './constants';
-import { IsOptional, IsString } from 'class-validator';
-import { Op, WhereAttributeHash } from 'sequelize';
+import {
+    Controller,
+    Delete,
+    Get,
+    NotFoundException,
+    Param,
+    Query,
+    UseInterceptors,
+    UsePipes,
+    ValidationPipe,
+} from "@nestjs/common";
+import { InjectModel } from "@nestjs/sequelize";
+import { JsonapiInterceptor, JsonapiPayload } from "nest-jsonapi";
+import Photo from "./schemas/photo";
+import { RESOURCE_PHOTOS } from "./constants";
+import { IsOptional, IsString } from "class-validator";
+import { Op, WhereAttributeHash } from "sequelize";
 
 class FindOptions {
     @IsString()
@@ -19,7 +29,8 @@ class FindOptions {
 @UseInterceptors(JsonapiInterceptor)
 @Controller('photos')
 export default class PhotosController {
-    constructor(@InjectModel(Photo) private readonly photoModel: Photo & typeof Photo) {}
+    constructor(@InjectModel(Photo) private readonly photoModel: Photo & typeof Photo) {
+    }
 
     @UsePipes(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }))
     @JsonapiPayload({ resource: RESOURCE_PHOTOS })
@@ -33,5 +44,16 @@ export default class PhotosController {
             where.title = { [Op.contains]: query.q };
         }
         return this.photoModel.findAll({ where });
+    }
+
+    @JsonapiPayload()
+    @Delete(':id')
+    public async deletePhoto(@Param('id') id: string): Promise<void> {
+        const photo = await this.photoModel.findByPk(id);
+        if (photo) {
+            await photo.destroy();
+        } else {
+            throw new NotFoundException(`Invalid photo id`);
+        }
     }
 }
